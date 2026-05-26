@@ -10,6 +10,7 @@ class JournalEntryDetailViewController: UIViewController {
     private let store = JournalStore.shared
     private var audioPlayer: AVAudioPlayer?
     private var isPlaying = false
+    private var isTranscribing = false
 
     private let moodDateLabel = UILabel()
     private let titleField = UITextField()
@@ -165,7 +166,8 @@ class JournalEntryDetailViewController: UIViewController {
 
     private func updatePlayButtonDuration() {
         let audioURL = store.audioDirectory.appendingPathComponent(entry.audioFileName)
-        guard let player = try? AVAudioPlayer(contentsOf: audioURL) else { return }
+        guard FileManager.default.fileExists(atPath: audioURL.path),
+              let player = try? AVAudioPlayer(contentsOf: audioURL) else { return }
         let minutes = Int(player.duration) / 60
         let seconds = Int(player.duration) % 60
         let durationText = String(format: "%d:%02d", minutes, seconds)
@@ -177,44 +179,62 @@ class JournalEntryDetailViewController: UIViewController {
     // MARK: - Transcription
 
     private func startTranscription() {
+        isTranscribing = true
         transcribingSpinner.startAnimating()
+        transcriptHeader.text = "Transcribing..."
 
         let audioURL = store.audioDirectory.appendingPathComponent(entry.audioFileName)
         let entryId = entry.id
 
+        guard FileManager.default.fileExists(atPath: audioURL.path) else {
+            finishTranscription(text: nil, entryId: entryId, message: "Recording file not found.")
+            return
+        }
+
         SFSpeechRecognizer.requestAuthorization { [weak self] status in
-            guard status == .authorized else {
-                DispatchQueue.main.async {
-                    self?.transcribingSpinner.stopAnimating()
+            DispatchQueue.main.async {
+                guard status == .authorized else {
+                    self?.finishTranscription(text: nil, entryId: entryId, message: "Speech recognition not authorized.")
+                    return
                 }
-                JournalStore.shared.updateTranscription(for: entryId, transcription: "")
-                return
-            }
-            guard let recognizer = SFSpeechRecognizer(), recognizer.isAvailable else {
-                DispatchQueue.main.async {
-                    self?.transcribingSpinner.stopAnimating()
+
+                guard let recognizer = SFSpeechRecognizer(), recognizer.isAvailable else {
+                    self?.finishTranscription(text: nil, entryId: entryId, message: "Speech recognition unavailable.")
+                    return
                 }
-                JournalStore.shared.updateTranscription(for: entryId, transcription: "")
-                return
-            }
-            let request = SFSpeechURLRecognitionRequest(url: audioURL)
-            recognizer.recognitionTask(with: request) { [weak self] result, error in
-                if let result, result.isFinal {
-                    let text = result.bestTranscription.formattedString
+
+                let request = SFSpeechURLRecognitionRequest(url: audioURL)
+                request.shouldReportPartialResults = false
+
+                recognizer.recognitionTask(with: request) { [weak self] result, error in
                     DispatchQueue.main.async {
-                        self?.transcribingSpinner.stopAnimating()
-                        self?.transcriptView.text = text
-                        self?.entry.transcription = text
+                        if let result, result.isFinal {
+                            let text = result.bestTranscription.formattedString
+                            self?.finishTranscription(text: text, entryId: entryId, message: nil)
+                        } else if let error {
+                            self?.finishTranscription(text: nil, entryId: entryId, message: error.localizedDescription)
+                        }
                     }
-                    JournalStore.shared.updateTranscription(for: entryId, transcription: text)
-                } else if error != nil {
-                    DispatchQueue.main.async {
-                        self?.transcribingSpinner.stopAnimating()
-                        self?.entry.transcription = ""
-                    }
-                    JournalStore.shared.updateTranscription(for: entryId, transcription: "")
                 }
             }
+        }
+    }
+
+    private func finishTranscription(text: String?, entryId: UUID, message: String?) {
+        isTranscribing = false
+        transcribingSpinner.stopAnimating()
+        transcriptHeader.text = "Transcript"
+
+        let transcription = text ?? ""
+        transcriptView.text = transcription
+        entry.transcription = transcription
+        store.updateTranscription(for: entryId, transcription: transcription)
+
+        if let message, text == nil {
+            transcriptView.text = ""
+            transcriptView.textColor = Theme.tint.withAlphaComponent(0.5)
+            let placeholder = "Could not transcribe: \(message)\nYou can type your thoughts here instead."
+            transcriptView.text = placeholder
         }
     }
 
@@ -229,23 +249,37 @@ class JournalEntryDetailViewController: UIViewController {
     }
 
     private func startPlayback() {
+        let audioURL = store.audioDirectory.appendingPathComponent(entry.audioFileName)
+
+        guard FileManager.default.fileExists(atPath: audioURL.path) else {
+            showAlert(title: "File Not Found", message: "The recording file could not be found.")
+            return
+        }
+
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
-            try session.setActive(true)
-        } catch {}
+            try session.setActive(true, options: [])
+        } catch {
+            showAlert(title: "Audio Error", message: "Could not configure audio: \(error.localizedDescription)")
+            return
+        }
 
-        let audioURL = store.audioDirectory.appendingPathComponent(entry.audioFileName)
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: audioURL)
             audioPlayer?.delegate = self
-            audioPlayer?.play()
+            audioPlayer?.volume = 1.0
+            audioPlayer?.prepareToPlay()
+
+            guard audioPlayer?.play() == true else {
+                showAlert(title: "Playback Failed", message: "Audio player could not start playback.")
+                return
+            }
+
             isPlaying = true
             updatePlayButtonState()
         } catch {
-            let alert = UIAlertController(title: "Playback Failed", message: "Could not play this recording.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+            showAlert(title: "Playback Failed", message: error.localizedDescription)
         }
     }
 
@@ -253,7 +287,9 @@ class JournalEntryDetailViewController: UIViewController {
         audioPlayer?.stop()
         audioPlayer = nil
         isPlaying = false
-        updatePlayButtonState()
+        if viewIfLoaded?.window != nil {
+            updatePlayButtonState()
+        }
     }
 
     private func updatePlayButtonState() {
@@ -277,8 +313,16 @@ class JournalEntryDetailViewController: UIViewController {
     private func saveEntry() {
         let title = titleField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         entry.title = (title?.isEmpty ?? true) ? nil : title
-        entry.transcription = transcriptView.text
+        if !isTranscribing {
+            entry.transcription = transcriptView.text
+        }
         store.updateEntry(entry)
+    }
+
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 

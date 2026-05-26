@@ -20,6 +20,10 @@
 		15A9F4722FC4CA8E001D072E /* MoodSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F4712FC4CA8E001D072E /* MoodSelectionViewController.swift */; };
 		15A9F4742FC4CA8E001D072E /* RecordingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F4732FC4CA8E001D072E /* RecordingViewController.swift */; };
 		15A9F4762FC4CD9C001D072E /* JournalEntryDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F4752FC4CD9C001D072E /* JournalEntryDetailViewController.swift */; };
+		15A9F4782FC551BE001D072E /* Mood.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F4772FC551BE001D072E /* Mood.swift */; };
+		15A9F47A2FC551BF001D072E /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F4792FC551BF001D072E /* WaveformView.swift */; };
+		15A9F47C2FC551C0001D072E /* TagsInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F47B2FC551C0001D072E /* TagsInputView.swift */; };
+		15A9F47E2FC551C1001D072E /* FormattingToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9F47D2FC551C1001D072E /* FormattingToolbar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +42,12 @@
 		15A9F4712FC4CA8E001D072E /* MoodSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodSelectionViewController.swift; sourceTree = "<group>"; };
 		15A9F4732FC4CA8E001D072E /* RecordingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewController.swift; sourceTree = "<group>"; };
 		15A9F4752FC4CD9C001D072E /* JournalEntryDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntryDetailViewController.swift; sourceTree = "<group>"; };
+		15A9F4772FC551BE001D072E /* Mood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mood.swift; sourceTree = "<group>"; };
+		15A9F4792FC551BF001D072E /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		15A9F47B2FC551C0001D072E /* TagsInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsInputView.swift; sourceTree = "<group>"; };
+		15A9F47D2FC551C1001D072E /* FormattingToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattingToolbar.swift; sourceTree = "<group>"; };
+		15A9F47F2FC55704001D072E /* AnalyticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewController.swift; sourceTree = "<group>"; };
+		15A9F4802FC5571A001D072E /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +66,8 @@
 			children = (
 				152D18DE2C35294300011999 /* Everec 2.0 */,
 				152D18DD2C35294300011999 /* Products */,
+				15A9F47F2FC55704001D072E /* AnalyticsViewController.swift */,
+				15A9F4802FC5571A001D072E /* SettingsViewController.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -84,6 +96,10 @@
 				15A9F4712FC4CA8E001D072E /* MoodSelectionViewController.swift */,
 				15A9F4732FC4CA8E001D072E /* RecordingViewController.swift */,
 				15A9F4752FC4CD9C001D072E /* JournalEntryDetailViewController.swift */,
+				15A9F4772FC551BE001D072E /* Mood.swift */,
+				15A9F4792FC551BF001D072E /* WaveformView.swift */,
+				15A9F47B2FC551C0001D072E /* TagsInputView.swift */,
+				15A9F47D2FC551C1001D072E /* FormattingToolbar.swift */,
 			);
 			path = "Everec 2.0";
 			sourceTree = "<group>";
@@ -162,13 +178,17 @@
 				15A9F46A2FC4CA48001D072E /* JournalEntry.swift in Sources */,
 				15A9F4722FC4CA8E001D072E /* MoodSelectionViewController.swift in Sources */,
 				15A9F4762FC4CD9C001D072E /* JournalEntryDetailViewController.swift in Sources */,
+				15A9F4782FC551BE001D072E /* Mood.swift in Sources */,
 				15A9F4682FC4CA47001D072E /* Theme.swift in Sources */,
 				152D18E02C35294300011999 /* AppDelegate.swift in Sources */,
 				15A9F46C2FC4CA49001D072E /* JournalStore.swift in Sources */,
 				15A9F4742FC4CA8E001D072E /* RecordingViewController.swift in Sources */,
 				15A9F46E2FC4CA4A001D072E /* JournalEntryCell.swift in Sources */,
 				15A9F4702FC4CA8E001D072E /* OnboardingViewController.swift in Sources */,
+				15A9F47E2FC551C1001D072E /* FormattingToolbar.swift in Sources */,
 				152D18E22C35294300011999 /* SceneDelegate.swift in Sources */,
+				15A9F47A2FC551BF001D072E /* WaveformView.swift in Sources */,
+				15A9F47C2FC551C0001D072E /* TagsInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

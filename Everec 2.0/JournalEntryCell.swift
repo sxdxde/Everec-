@@ -6,6 +6,7 @@ class JournalEntryCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let dateLabel = UILabel()
     private let transcriptionLabel = UILabel()
+    private let tagsStack = UIStackView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -39,7 +40,11 @@ class JournalEntryCell: UITableViewCell {
         transcriptionLabel.textColor = Theme.tint
         transcriptionLabel.numberOfLines = 1
 
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, dateLabel, transcriptionLabel])
+        tagsStack.axis = .horizontal
+        tagsStack.spacing = 4
+        tagsStack.alignment = .center
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, dateLabel, transcriptionLabel, tagsStack])
         textStack.axis = .vertical
         textStack.spacing = 3
 
@@ -60,7 +65,7 @@ class JournalEntryCell: UITableViewCell {
     }
 
     func configure(with entry: JournalEntry) {
-        moodLabel.text = entry.mood
+        moodLabel.text = entry.displayMood
 
         if let title = entry.title, !title.isEmpty {
             titleLabel.text = title
@@ -80,6 +85,30 @@ class JournalEntryCell: UITableViewCell {
             transcriptionLabel.isHidden = false
         } else {
             transcriptionLabel.isHidden = true
+        }
+
+        tagsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if entry.tags.isEmpty {
+            tagsStack.isHidden = true
+        } else {
+            tagsStack.isHidden = false
+            for tag in entry.tags.prefix(3) {
+                let pill = UILabel()
+                pill.text = "  \(tag)  "
+                pill.font = .systemFont(ofSize: 10, weight: .medium)
+                pill.textColor = Theme.accent
+                pill.backgroundColor = Theme.accent.withAlphaComponent(0.12)
+                pill.layer.cornerRadius = 8
+                pill.clipsToBounds = true
+                tagsStack.addArrangedSubview(pill)
+            }
+            if entry.tags.count > 3 {
+                let more = UILabel()
+                more.text = "+\(entry.tags.count - 3)"
+                more.font = .systemFont(ofSize: 10, weight: .medium)
+                more.textColor = Theme.tint
+                tagsStack.addArrangedSubview(more)
+            }
         }
     }
 }
