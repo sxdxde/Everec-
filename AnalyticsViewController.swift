@@ -63,7 +63,7 @@ class AnalyticsViewController: UIViewController {
         stackView.addArrangedSubview(makeSummaryCard(title: "Current Streak", value: "\(streak)", subtitle: streak == 1 ? "day" : "days"))
 
         if let favoriteMood, (counts[favoriteMood] ?? 0) > 0 {
-            stackView.addArrangedSubview(makeSummaryCard(title: "Most Logged Mood", value: favoriteMood.emoji, subtitle: favoriteMood.label))
+            stackView.addArrangedSubview(makeMoodCard(title: "Most Logged Mood", mood: favoriteMood))
         }
 
         let header = UILabel()
@@ -113,11 +113,46 @@ class AnalyticsViewController: UIViewController {
         return container
     }
 
+    private func makeMoodCard(title: String, mood: Mood) -> UIView {
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = Theme.tint
+
+        let iconView = UIImageView(image: mood.icon(pointSize: 30))
+        iconView.tintColor = mood.color
+        iconView.contentMode = .scaleAspectFit
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = mood.label
+        subtitleLabel.font = .systemFont(ofSize: 14)
+        subtitleLabel.textColor = Theme.accent
+
+        let stack = UIStackView(arrangedSubviews: [titleLabel, iconView, subtitleLabel])
+        stack.axis = .vertical
+        stack.spacing = 4
+
+        let container = UIView()
+        container.backgroundColor = Theme.cellBackground
+        container.layer.cornerRadius = 14
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16),
+        ])
+
+        return container
+    }
+
     private func makeMoodRow(mood: Mood, count: Int) -> UIView {
-        let emojiLabel = UILabel()
-        emojiLabel.text = mood.emoji
-        emojiLabel.font = .systemFont(ofSize: 28)
-        emojiLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let iconView = UIImageView(image: mood.icon(pointSize: 22))
+        iconView.tintColor = mood.color
+        iconView.contentMode = .scaleAspectFit
+        iconView.setContentHuggingPriority(.required, for: .horizontal)
 
         let nameLabel = UILabel()
         nameLabel.text = mood.label
@@ -131,7 +166,7 @@ class AnalyticsViewController: UIViewController {
         countLabel.textAlignment = .right
         countLabel.setContentHuggingPriority(.required, for: .horizontal)
 
-        let stack = UIStackView(arrangedSubviews: [emojiLabel, nameLabel, countLabel])
+        let stack = UIStackView(arrangedSubviews: [iconView, nameLabel, countLabel])
         stack.axis = .horizontal
         stack.spacing = 12
         stack.alignment = .center

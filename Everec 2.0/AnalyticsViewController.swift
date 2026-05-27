@@ -133,10 +133,9 @@ class AnalyticsViewController: UIViewController {
             bar.backgroundColor = mood.color
             bar.layer.cornerRadius = 4
 
-            let emoji = UILabel()
-            emoji.text = mood.emoji
-            emoji.font = .systemFont(ofSize: 20)
-            emoji.textAlignment = .center
+            let moodIcon = UIImageView(image: mood.icon(pointSize: 18))
+            moodIcon.tintColor = mood.color
+            moodIcon.contentMode = .scaleAspectFit
 
             let countLabel = UILabel()
             countLabel.text = "\(count)"
@@ -144,7 +143,7 @@ class AnalyticsViewController: UIViewController {
             countLabel.textColor = Theme.tint
             countLabel.textAlignment = .center
 
-            [countLabel, bar, emoji].forEach {
+            [countLabel, bar, moodIcon].forEach {
                 $0.translatesAutoresizingMaskIntoConstraints = false
                 column.addSubview($0)
             }
@@ -153,10 +152,12 @@ class AnalyticsViewController: UIViewController {
             let minHeight: CGFloat = 4
 
             NSLayoutConstraint.activate([
-                emoji.bottomAnchor.constraint(equalTo: column.bottomAnchor),
-                emoji.centerXAnchor.constraint(equalTo: column.centerXAnchor),
+                moodIcon.bottomAnchor.constraint(equalTo: column.bottomAnchor),
+                moodIcon.centerXAnchor.constraint(equalTo: column.centerXAnchor),
+                moodIcon.widthAnchor.constraint(equalToConstant: 24),
+                moodIcon.heightAnchor.constraint(equalToConstant: 24),
 
-                bar.bottomAnchor.constraint(equalTo: emoji.topAnchor, constant: -4),
+                bar.bottomAnchor.constraint(equalTo: moodIcon.topAnchor, constant: -4),
                 bar.centerXAnchor.constraint(equalTo: column.centerXAnchor),
                 bar.widthAnchor.constraint(equalToConstant: 24),
                 bar.heightAnchor.constraint(equalTo: column.heightAnchor, multiplier: max(0.03, fraction * 0.6), constant: minHeight),

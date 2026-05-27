@@ -79,16 +79,16 @@ class MoodSelectionViewController: UIViewController {
     private func createMoodButton(mood: Mood) -> UIButton {
         let button = UIButton(type: .system)
 
-        let emoji = UILabel()
-        emoji.text = mood.emoji
-        emoji.font = .systemFont(ofSize: 36)
+        let iconView = UIImageView(image: mood.icon(pointSize: 32))
+        iconView.tintColor = mood.color
+        iconView.contentMode = .scaleAspectFit
 
         let label = UILabel()
         label.text = mood.label
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.textColor = Theme.accent
 
-        let stack = UIStackView(arrangedSubviews: [emoji, label])
+        let stack = UIStackView(arrangedSubviews: [iconView, label])
         stack.axis = .vertical
         stack.spacing = 4
         stack.alignment = .center
@@ -233,9 +233,11 @@ class AnalyticsViewController: UIViewController {
     }
 
     private func makeMoodRow(mood: Mood, count: Int) -> UIView {
-        let emojiLabel = UILabel()
-        emojiLabel.text = mood.emoji
-        emojiLabel.font = .systemFont(ofSize: 28)
+        let iconView = UIImageView(image: mood.icon(pointSize: 22))
+        iconView.tintColor = mood.color
+        iconView.contentMode = .scaleAspectFit
+        iconView.setContentHuggingPriority(.required, for: .horizontal)
+        iconView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         let nameLabel = UILabel()
         nameLabel.text = mood.label
@@ -248,7 +250,7 @@ class AnalyticsViewController: UIViewController {
         countLabel.textColor = Theme.accent
         countLabel.textAlignment = .right
 
-        let stack = UIStackView(arrangedSubviews: [emojiLabel, nameLabel, countLabel])
+        let stack = UIStackView(arrangedSubviews: [iconView, nameLabel, countLabel])
         stack.axis = .horizontal
         stack.spacing = 12
         stack.alignment = .center

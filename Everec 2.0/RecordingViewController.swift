@@ -12,7 +12,7 @@ class RecordingViewController: UIViewController {
     private var recordingTimer: Timer?
     private var recordingDuration: TimeInterval = 0
 
-    private let moodLabel = UILabel()
+    private let moodIconView = UIImageView()
     private let recordButton = UIButton(type: .custom)
     private let timerLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .plain)
@@ -20,7 +20,7 @@ class RecordingViewController: UIViewController {
     private let recordingDot = UIView()
 
     private var entries: [JournalEntry] {
-        store.allEntries()
+        store.allEntries().filter { $0.mood == mood }
     }
 
     // MARK: - Lifecycle
@@ -88,10 +88,10 @@ class RecordingViewController: UIViewController {
     }
 
     private func setupUI() {
-        moodLabel.text = mood
-        moodLabel.font = .systemFont(ofSize: 56)
-        moodLabel.textColor = Theme.accent
-        moodLabel.textAlignment = .center
+        let moodType = Mood(rawValue: mood)
+        moodIconView.image = moodType?.icon(pointSize: 48, weight: .light)
+        moodIconView.tintColor = moodType?.color ?? Theme.accent
+        moodIconView.contentMode = .scaleAspectFit
 
         recordButton.backgroundColor = Theme.tint
         recordButton.layer.cornerRadius = 40
@@ -111,7 +111,7 @@ class RecordingViewController: UIViewController {
         timerLabel.textAlignment = .center
 
         let entriesHeader = UILabel()
-        entriesHeader.text = "Journal Entries"
+        entriesHeader.text = "\(moodType?.label ?? mood) Entries"
         entriesHeader.font = .systemFont(ofSize: 18, weight: .semibold)
         entriesHeader.textColor = Theme.primaryText
 
@@ -133,17 +133,19 @@ class RecordingViewController: UIViewController {
         emptyStateLabel.numberOfLines = 0
         emptyStateLabel.isHidden = !entries.isEmpty
 
-        [moodLabel, recordButton, recordingDot, timerLabel,
+        [moodIconView, recordButton, recordingDot, timerLabel,
          entriesHeader, separator, tableView, emptyStateLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
 
         NSLayoutConstraint.activate([
-            moodLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            moodLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            moodIconView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            moodIconView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            moodIconView.widthAnchor.constraint(equalToConstant: 56),
+            moodIconView.heightAnchor.constraint(equalToConstant: 56),
 
-            recordButton.topAnchor.constraint(equalTo: moodLabel.bottomAnchor, constant: 16),
+            recordButton.topAnchor.constraint(equalTo: moodIconView.bottomAnchor, constant: 16),
             recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordButton.widthAnchor.constraint(equalToConstant: 80),
             recordButton.heightAnchor.constraint(equalToConstant: 80),
@@ -332,7 +334,8 @@ extension RecordingViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            store.deleteEntry(at: indexPath.row)
+            let entry = entries[indexPath.row]
+            store.deleteEntry(id: entry.id)
             tableView.deleteRows(at: [indexPath], with: .fade)
             updateEmptyState()
         }

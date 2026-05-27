@@ -3,15 +3,20 @@ import UIKit
 enum Mood: String, Codable, CaseIterable {
     case happy, calm, anxious, sad, angry, neutral
 
-    var emoji: String {
+    var iconName: String {
         switch self {
-        case .happy: return "😊"
-        case .calm: return "😌"
-        case .anxious: return "😰"
-        case .sad: return "😢"
-        case .angry: return "😠"
-        case .neutral: return "😐"
+        case .happy: return "sun.max.fill"
+        case .calm: return "leaf.fill"
+        case .anxious: return "bolt.heart.fill"
+        case .sad: return "cloud.rain.fill"
+        case .angry: return "flame.fill"
+        case .neutral: return "circle.lefthalf.filled"
         }
+    }
+
+    func icon(pointSize: CGFloat = 24, weight: UIImage.SymbolWeight = .medium) -> UIImage? {
+        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: weight)
+        return UIImage(systemName: iconName, withConfiguration: config)
     }
 
     var label: String {
@@ -25,14 +30,10 @@ enum Mood: String, Codable, CaseIterable {
         }
     }
 
+    static let navy = UIColor(red: 0.06, green: 0.13, blue: 0.37, alpha: 1.0)
+    static let gold = UIColor(red: 0.85, green: 0.65, blue: 0.13, alpha: 1.0)
+
     var color: UIColor {
-        switch self {
-        case .happy: return .systemGreen
-        case .calm: return .systemBlue
-        case .anxious: return .systemOrange
-        case .sad: return .systemIndigo
-        case .angry: return .systemRed
-        case .neutral: return .systemGray
-        }
+        Mood.gold
     }
 }

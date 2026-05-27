@@ -2,7 +2,7 @@ import UIKit
 
 class JournalEntryCell: UITableViewCell {
 
-    private let moodLabel = UILabel()
+    private let moodIconView = UIImageView()
     private let titleLabel = UILabel()
     private let dateLabel = UILabel()
     private let transcriptionLabel = UILabel()
@@ -26,9 +26,11 @@ class JournalEntryCell: UITableViewCell {
         selectedBg.backgroundColor = Theme.cellBackground
         selectedBackgroundView = selectedBg
 
-        moodLabel.font = .systemFont(ofSize: 28)
-        moodLabel.setContentHuggingPriority(.required, for: .horizontal)
-        moodLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        moodIconView.contentMode = .scaleAspectFit
+        moodIconView.setContentHuggingPriority(.required, for: .horizontal)
+        moodIconView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        moodIconView.widthAnchor.constraint(equalToConstant: 28).isActive = true
+        moodIconView.heightAnchor.constraint(equalToConstant: 28).isActive = true
 
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = Theme.primaryText
@@ -48,7 +50,7 @@ class JournalEntryCell: UITableViewCell {
         textStack.axis = .vertical
         textStack.spacing = 3
 
-        let mainStack = UIStackView(arrangedSubviews: [moodLabel, textStack])
+        let mainStack = UIStackView(arrangedSubviews: [moodIconView, textStack])
         mainStack.axis = .horizontal
         mainStack.spacing = 12
         mainStack.alignment = .center
@@ -65,7 +67,13 @@ class JournalEntryCell: UITableViewCell {
     }
 
     func configure(with entry: JournalEntry) {
-        moodLabel.text = entry.displayMood
+        if let mood = entry.moodType {
+            moodIconView.image = mood.icon(pointSize: 22)
+            moodIconView.tintColor = mood.color
+        } else {
+            moodIconView.image = UIImage(systemName: "questionmark.circle")
+            moodIconView.tintColor = Theme.tint
+        }
 
         if let title = entry.title, !title.isEmpty {
             titleLabel.text = title

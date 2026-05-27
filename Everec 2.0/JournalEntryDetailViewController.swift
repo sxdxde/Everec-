@@ -12,7 +12,8 @@ class JournalEntryDetailViewController: UIViewController {
     private var isPlaying = false
     private var isTranscribing = false
 
-    private let moodDateLabel = UILabel()
+    private let moodIconView = UIImageView()
+    private let dateLabel = UILabel()
     private let titleField = UITextField()
     private let playButton = UIButton()
     private let transcriptHeader = UILabel()
@@ -63,8 +64,11 @@ class JournalEntryDetailViewController: UIViewController {
     }
 
     private func setupUI() {
-        moodDateLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        moodDateLabel.textColor = Theme.accent
+        moodIconView.contentMode = .scaleAspectFit
+        moodIconView.setContentHuggingPriority(.required, for: .horizontal)
+
+        dateLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        dateLabel.textColor = Theme.accent
 
         titleField.font = .systemFont(ofSize: 26, weight: .bold)
         titleField.textColor = Theme.primaryText
@@ -110,18 +114,26 @@ class JournalEntryDetailViewController: UIViewController {
         let separator = UIView()
         separator.backgroundColor = Theme.tint.withAlphaComponent(0.2)
 
-        [moodDateLabel, titleField, separator, playButton,
+        let moodDateStack = UIStackView(arrangedSubviews: [moodIconView, dateLabel])
+        moodDateStack.axis = .horizontal
+        moodDateStack.spacing = 8
+        moodDateStack.alignment = .center
+
+        [moodDateStack, titleField, separator, playButton,
          transcriptHeader, transcribingSpinner, transcriptView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
 
         NSLayoutConstraint.activate([
-            moodDateLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            moodDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            moodDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            moodIconView.widthAnchor.constraint(equalToConstant: 22),
+            moodIconView.heightAnchor.constraint(equalToConstant: 22),
 
-            titleField.topAnchor.constraint(equalTo: moodDateLabel.bottomAnchor, constant: 12),
+            moodDateStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            moodDateStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            moodDateStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            titleField.topAnchor.constraint(equalTo: moodDateStack.bottomAnchor, constant: 12),
             titleField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             titleField.heightAnchor.constraint(greaterThanOrEqualToConstant: 36),
@@ -148,10 +160,15 @@ class JournalEntryDetailViewController: UIViewController {
     }
 
     private func populateData() {
+        if let mood = entry.moodType {
+            moodIconView.image = mood.icon(pointSize: 18)
+            moodIconView.tintColor = mood.color
+        }
+
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
-        moodDateLabel.text = "\(entry.mood)  \(formatter.string(from: entry.date))"
+        dateLabel.text = formatter.string(from: entry.date)
 
         titleField.text = entry.title
 

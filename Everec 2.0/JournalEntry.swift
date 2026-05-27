@@ -15,7 +15,7 @@ struct JournalEntry: Codable {
     }
 
     var displayMood: String {
-        moodType?.emoji ?? mood
+        moodType?.label ?? mood
     }
 
     init(mood: String, date: Date, audioFileName: String, title: String? = nil, transcription: String? = nil, tags: [String] = [], formattedTranscription: Data? = nil) {
